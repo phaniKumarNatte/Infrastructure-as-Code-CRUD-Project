@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  MySQLDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: mysql
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      DBName: cruddb
+      MasterUsername: admin
+      MasterUserPassword: password123
+      PubliclyAccessible: true
+      BackupRetentionPeriod: 0
+
+Outputs:
+  DBEndpoint:
+    Value: !GetAtt MySQLDB.Endpoint.Address
