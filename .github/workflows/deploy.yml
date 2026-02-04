@@ -38,6 +38,5 @@ jobs:
             --template-file infra/template.yaml \
             --stack-name crud-mysql-stack \
             --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ImageUri=084374024081.dkr.ecr.ap-south-1.amazonaws.com/crud-mysql-service:latest
-            # --parameter-overrides ImageUri=${{ secrets.ECR_URI }}:latest
+            --parameter-overrides ImageUri=${{ secrets.ECR_URI }}:latest            
             
