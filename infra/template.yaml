@@ -11,10 +11,10 @@ Resources:
   # -------------------
   # ECR Repository
   # -------------------
-  # ECRRepository:
-  #   Type: AWS::ECR::Repository
-  #   Properties:
-  #     RepositoryName: crud-mysql-service
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: crud-mysql-service
 
   # -------------------
   # IAM Role for Lambda
@@ -35,17 +35,17 @@ Resources:
   # -------------------
   # RDS MySQL
   # -------------------
-  MySQLDB:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      Engine: mysql
-      DBInstanceClass: db.t3.micro
-      AllocatedStorage: 20
-      DBName: cruddb
-      MasterUsername: dbuser
-      MasterUserPassword: Phani@12345
-      PubliclyAccessible: true
-      BackupRetentionPeriod: 0
+  # MySQLDB:
+  #   Type: AWS::RDS::DBInstance
+  #   Properties:
+  #     Engine: mysql
+  #     DBInstanceClass: db.t3.micro
+  #     AllocatedStorage: 20
+  #     DBName: cruddb
+  #     MasterUsername: dbuser
+  #     MasterUserPassword: Phani@12345
+  #     PubliclyAccessible: true
+  #     BackupRetentionPeriod: 0
 
   # -------------------
   # Lambda (Docker Image)
@@ -59,12 +59,19 @@ Resources:
         ImageUri: !Ref ImageUri
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 30
+      # Environment:
+      #   Variables:
+      #     DB_HOST: !GetAtt MySQLDB.Endpoint.Address
+      #     DB_USER: admin
+      #     DB_PASSWORD: password123
+      #     DB_NAME: cruddb
       Environment:
         Variables:
-          DB_HOST: !GetAtt MySQLDB.Endpoint.Address
-          DB_USER: admin
-          DB_PASSWORD: password123
-          DB_NAME: cruddb
+          DB_HOST: dummy
+          DB_USER: dummy
+          DB_PASSWORD: dummy
+          DB_NAME: dummy
+
 
   # -------------------
   # API Gateway
