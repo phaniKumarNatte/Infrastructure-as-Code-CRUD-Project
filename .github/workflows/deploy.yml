@@ -18,25 +18,86 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: Login to ECR
-        run: |
-          aws ecr get-login-password \
-          | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
-
-      - name: Build Image
-        run: |
-          docker build -t crud-mysql ./app
-          docker tag crud-mysql:latest ${{ secrets.ECR_URI }}:latest
-
-      - name: Push Image
-        run: |
-          docker push ${{ secrets.ECR_URI }}:latest
-
-      - name: Deploy Stack
+      # 1️⃣ Create infra FIRST (ECR + IAM + API + Lambda placeholder)
+      - name: Deploy Infra
         run: |
           aws cloudformation deploy \
             --template-file infra/template.yaml \
             --stack-name crud-mysql-stack \
             --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ImageUri=${{ secrets.ECR_URI }}:latest            
+            --parameter-overrides ImageUri=placeholder
+
+      # 2️⃣ Get ECR URI created by CloudFormation
+      - name: Get ECR URI
+        id: ecr
+        run: |
+          ECR_URI=$(aws ecr describe-repositories \
+            --query "repositories[?repositoryName=='crud-mysql-service'].repositoryUri" \
+            --output text)
+          echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
+
+      # 3️⃣ Login to ECR
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password \
+          | docker login --username AWS --password-stdin $ECR_URI
+
+      # 4️⃣ Build & Push Image
+      - name: Build and Push Image
+        run: |
+          docker build -t crud-mysql ./app
+          docker tag crud-mysql:latest $ECR_URI:latest
+          docker push $ECR_URI:latest
+
+      # 5️⃣ Update Lambda with REAL image
+      - name: Update Lambda Image
+        run: |
+          aws cloudformation deploy \
+            --template-file infra/template.yaml \
+            --stack-name crud-mysql-stack \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides ImageUri=$ECR_URI:latest
+
+
+# name: Deploy CRUD MySQL Service
+
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v4
+
+#       - name: Configure AWS
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ap-south-1
+
+#       - name: Login to ECR
+#         run: |
+#           aws ecr get-login-password \
+#           | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
+
+#       - name: Build Image
+#         run: |
+#           docker build -t crud-mysql ./app
+#           docker tag crud-mysql:latest ${{ secrets.ECR_URI }}:latest
+
+#       - name: Push Image
+#         run: |
+#           docker push ${{ secrets.ECR_URI }}:latest
+
+#       - name: Deploy Stack
+#         run: |
+#           aws cloudformation deploy \
+#             --template-file infra/template.yaml \
+#             --stack-name crud-mysql-stack \
+#             --capabilities CAPABILITY_NAMED_IAM \            
+#             --parameter-overrides ImageUri=placeholder
             
