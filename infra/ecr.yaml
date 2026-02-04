@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  EcrRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: crud-mysql-service
+
+Outputs:
+  RepositoryUri:
+    Value: !GetAtt EcrRepo.RepositoryUri
