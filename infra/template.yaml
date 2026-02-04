@@ -43,7 +43,7 @@ Resources:
       AllocatedStorage: 20
       DBName: cruddb
       MasterUsername: admin
-      MasterUserPassword: password123
+      MasterUserPassword: Admin@12345
       PubliclyAccessible: true
       BackupRetentionPeriod: 0
 
