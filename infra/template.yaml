@@ -42,8 +42,8 @@ Resources:
       DBInstanceClass: db.t3.micro
       AllocatedStorage: 20
       DBName: cruddb
-      MasterUsername: admin
-      MasterUserPassword: Admin@12345
+      MasterUsername: dbuser
+      MasterUserPassword: Phani@12345
       PubliclyAccessible: true
       BackupRetentionPeriod: 0
 
